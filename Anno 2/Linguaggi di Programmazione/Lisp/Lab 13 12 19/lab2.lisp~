@@ -72,29 +72,5 @@
           (node-search (node-left node) k)
         (node-search (node-right node) k)))))
 
-(defun visit-tree(tree mode)
-  (when (is-tree tree)
-    (cond ((eq mode 'in-order) (node-in-order (tree-root tree)))
-          ((eq mode 'pre-order) (node-pre-order (tree-root tree)))
-          ((eq mode 'post-order) (node-post-order (tree-root tree))))))
-
-(defun node-in-order (node)
-  (when (is-node node)
-    (append (node-in-order(node-left node))
-            (list (list (node-key node) (node-value node)))
-            (node-in-order(node-right node)))))
-
-(defun node-pre-order (node)
-  (when (is-node node)
-    (append (list (list (node-key node) (node-value node)))
-            (node-pre-order (node-left node))
-            (node-pre-order (node-right node)))))
-
-(defun node-post-order (node)
-  (when (is-node node)
-    (append (node-post-order (node-left node))
-            (node-post-order (node-right node))
-            (list (list (node-key node) (node-value node))))))
-  
 ;;;; End of File: lab2.lisp
 
