@@ -54,4 +54,4 @@ Architettura a 2 livelli:
 
 **Linguaggi usati in un DBMS:**
 1. **DDL:** Data Description Language: Linguaggio di descrizione dei dati, con cui si descrivono le strutture degli schemi.
-2. **DML: ** Data Manipulation Language: Linguaggio di manipolazione dei dati, con cui si esprimono le interrogazioni che ritrovano i dati dalla base di dati.
+2. **DML:** Data Manipulation Language: Linguaggio di manipolazione dei dati, con cui si esprimono le interrogazioni che ritrovano i dati dalla base di dati.
