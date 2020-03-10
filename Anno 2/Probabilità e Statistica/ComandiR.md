@@ -28,7 +28,7 @@
  - Mediana:```median(x)```.
  - Moda:```table(x)[table(x)==max(table(x))]```.
 
-**Indici di dipersione**
+**Indici di dispersione**
 - Varianza:```var(x)```.
 - Deviazione Standard: ```sd(x)``` o ```sqrt(var(x))```.
 - Quantili:```quantile(x,v)``` dove ```v``` è il vettore con le probabilità, esempio: ```quantile(x,c(0.25,0.5,0.75))```.
