@@ -89,3 +89,56 @@ Architettura a 2 livelli:
    - L'identificatore di un entità E può essere:
      - Interno: formato solo da attributi di E.
      - Esterno: formato da attributi di E e/o da relazione che coinvolgono E (matricola di uno studente e le relazione che stabilisce a quale università appartiene).
+
+## Il Modello Relazionale ##
+
+**Modello logico:** insieme di strutture e rappresentazioni utilizzabili per descrivere un insieme di dati, o schema logico, che a sua volta descrive una realtà di interesse.
+
+**Modello relazionale** struttura posizionale per distinguere i domini, oppure non posizionale ed ad ogni dominio si assegna un nome (attributo).
+In una relazione del modello relazionale:
+- I valori di ogni colonna sono fra loro omogenei.
+- Le righe sono diverse tra loro.
+- Le intestazione delle colonne sono diverse tra loro.
+- L'ordinamento delle righe è irrilevante.
+- L'ordinamento delle colonne è irrilevante.
+
+Il modello relazionale è basato sui valori, vantaggi:
+- L'utente finale vedi gli stessi dati dei programmatori.
+- Indipendenza della rappresentazione dalle strutture fisiche.
+- I dati sono portabili più facilmente da un sistema all'altro.
+
+**Schema di relazione:** un nome $R$ con un insieme di attributi $A_1,...,A_n$: $R(A_1,...,A_n)$.
+**Schema di basi di dati:** insieme di schemi di relazione:
+$R=\{R_1(X_1),...,R_k(X_k)\}$
+
+Un ennupla su un insieme di attributi $X$ è una funzione che associa a ciascun attributo $A$ in $X$ un valore del dominio di $A$: ```t[A]``` rappresenta il valore dell'ennupla $t$ sull'attributo $A$.
+
+**Istanza di relazione** su uno schema $R(x)$: insieme $r$ di ennuple su $X$.
+**Istanza di base di dati:** su uno schema $R=\{R_1(X_1)...,R_n(X_n)\}$: insieme dei relazinoe $r=\{r_1,...,r_n\}$
+
+
+Vincolo di integrità: proprietà che devono essere soddisfatte per tutte le istanza di uno schema che rappresentano informazioni corrette per un'applicazione, è una funzione booleana che associa ad ogni istanza di $r$ vero se è corretta, altrimenti falso.
+I vincolo di integrità contribuiscono a rappresentare i dati in modo più accurato, tornano utili anche nella fase di progettazione.
+Vincoli:
+- Intrarelazionali: definiti in un'unica relazione:
+  - Vincoli sui singoli valori (voto compreso tra 18 e 30).
+  - Vincoli di ennupla: condizioni su ciascuna ennupla della relazione (non ci possono essere due ennuple con la stessa matricola). Definiamo una sintassi:
+    - Espressioni booleane AND, OR, NOT , atomi di confronto: > >=, =, <, <=, $\neq$ e valori di attributo / espressioni aritmetiche.
+  - Vincoli di relazione (tra cui i vincoli di chiave):
+    - Vincolo di chiave: insieme di attributi che identificano le ennuple di una relazione. un insieme $K$ di attributi è **superchiave** per una relazione $r$ se $r$ non contiene due ennuple distinte $t_1, t_2$ tali che $t_1[K]=t_2[K]$. Il concetto di chiave corrisponde a quello di superchiave minimale ($K$ è una superchiave minimale se $K$ è superchiave ma nessun suo sottoinsieme lo è).
+    **I vincoli di chiave si riferiscono allo schema e non alle istanze.** Le chiavi garantiscono l'accessibilità e permettono di collegare i dati di relazioni differenti.
+- Interrelazionali: definiti su più relazioni. 
+
+Valori nulli:
+1. Valore sconosciuto (ma esiste).
+2. Valore inesistente.
+3. Senza informazione: non si sa se esiste o meno.
+Per rappresentare un'informazione nulla si estende il dominio degli attributi con il valore NULL, i valori nulli nelle chiavi devono essere limitati. La **chiave primaria** è una chiave su cui non sono ammessi valori NULL (sottolineata nello schema)
+
+Vincolo di integrità referenziale: Esprime la proprietà per cui informazioni con stesso significato in relazioni diverse sono correlate: non è possibile che un valore sia rappresentato nella sua relazione con un altro oggetto ma non sia rappresentato ed identificato nella tabella che lo descrive.
+Definizione Formale: Un vincolo di integrità referenziale, tra un insieme di attributi $X$ di una relazione $R_1$ e un'altra relazione $R_2$ impone ai valori su $X$ in $R_1$ di comparire come valori della chiave primaria di $R_2$.
+
+Nel caso in cui un inserimento non rispetti i vincoli di integrità referenziale, si possono attuare una delle seguenti:
+- Rifiuto l'operazione.
+- Eliminazione a cascata.
+- Introduzione di valori nulli.
