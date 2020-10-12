@@ -22,7 +22,7 @@ int main() {
 	while(i > 0 && j > 0) {
 		if(dp[i - 1][j] == dp[i][j]) {
 			i--;
-		} else if(dp[i][j - 1] == dp[i][j]){
+		} else if(dp[i][j - 1] == dp[i][j]) {
 			j--;
 		} else {
 			ans += s[i - 1];
