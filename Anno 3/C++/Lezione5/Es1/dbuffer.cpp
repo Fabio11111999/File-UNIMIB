@@ -79,3 +79,18 @@ void dbuffer::swap(dbuffer &other) {
 	std::swap(_buffer, other._buffer);
 	std::swap(_size, other._size);
 }
+std::ostream &operator<<(std::ostream &os, const dbuffer &db) {
+	os << db.size() << std::endl;
+	for(unsigned int i = 0; i < db.size(); i++)
+		os << db.value(i) << " ";
+	os << std::endl;
+	return os;
+}
+dbuffer::value_type& dbuffer::operator[](unsigned int index) {
+	assert(index < _size);
+	return _buffer[index];
+}
+const dbuffer::value_type& dbuffer::operator[](unsigned int index) const {
+	assert(index < _size);
+	return _buffer[index];
+}

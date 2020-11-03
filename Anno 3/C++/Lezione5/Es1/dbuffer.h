@@ -1,6 +1,8 @@
 #ifndef DBUFFER_H
 #define DBUFFER_H
 
+#include <ostream> 
+
 /**
 	@file dbuffer.h
 	@brief dichiarazione della classe dbuffer
@@ -16,6 +18,7 @@
 class dbuffer {
 	public:
 		typedef int value_type;
+		typedef unsigned int size_type;
 	private:
 		value_type *_buffer; ///< Puntatore all'array dinamico di interi 
 		unsigned int _size; ///< Dimensione dell'array
@@ -103,7 +106,7 @@ class dbuffer {
 			@pre index < _size
 			@post _buffer[index] == value
 		*/
-		void set_value(unsigned int index, value_type value);
+		void set_value(unsigned int index, value_type value); 
 		
 		
 		
@@ -114,7 +117,6 @@ class dbuffer {
 			@return reference alla cella index
 		*/
 		value_type &value(unsigned int index);
-		
 		const value_type &value(unsigned int index) const;
 		
 		
@@ -135,6 +137,28 @@ class dbuffer {
 			@param refernce all'oggetto con cui scambiare i dati
 		*/
 		void swap(dbuffer &other);
+		
+		
+		
+		/**
+			@brief accesso ad un elemento del dbuffer
+			Definizione dell'operator [] per il dbuffer
+			@param indice a cui accedere
+			@return valore in posizione indice del dbuffer 
+		*/
+		value_type &operator[](unsigned int index);
+		const value_type &operator[](unsigned int index) const;
 };
+
+
+
+/**
+	@brief stampa del dbuffer
+	Definizione dell'operatore << per stampare un dbuffer
+	@param os stream di output
+	@param db dbuffer da stampare
+*/
+std::ostream &operator<<(std::ostream &os, const dbuffer &db);
+
 
 #endif
