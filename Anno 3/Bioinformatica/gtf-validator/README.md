@@ -10,6 +10,7 @@ Types of errors detected:
    - [x] Wrong start/end.
    - [x] Wrong frame.
    - [x] Wrong Attributes.
+   - [X] Wrong strand.
 
 Comments in `validator.py` contain more info about each error. `validator.py` works for python 2 and all the next releases.
 The script takes a path to a GTF file as input and creates ```validation.txt``` , a text file with the result of the validation process, in the directory of the script. 
