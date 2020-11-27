@@ -7,22 +7,15 @@ import re, sys
 # Validation part:
 # Files and functions for the output of validation's results
 validation = open("validation.txt", "w+")
+successful_validation = True
 def print_error(row, message):
+	global successful_validation
+	successful_validation = False
 	validation.write('Validation failed.\n')
 	if row != ' ':
 		validation.write('Row ' + str(row) + ' : ' + message + '\n')
 	else:
 		validation.write(message + '\n')
-
-# Function check_strands(rows)
-# Boolean function that checks whether all the strands of a file are equal
-def check_strands(rows):
-	correct = True
-	for i in range(len(rows)):
-		if rows[i].split('\t')[6] != rows[0].split('\t')[6]:
-			correct = False
-			print_error(i, 'Strand does not match strand at row 0')
-	return correct 
 
 
 # Function check_start_end(start, end, i)
@@ -68,7 +61,7 @@ def check_feature(feature, i):
 # Strand's value must be equal to '-' or '+'
 def check_strand(strand, i):
 	if strand not in ['-', '+']:
-		print_error(i, 'Strand value is not correct')
+		print_error(i, 'Strand value must be "-" or "+"')
 		return False
 	return True
 
@@ -199,7 +192,26 @@ def check_overlap(v):
 	return True
 
 
+# Function check_frame_gene(type, ranges, frames, transcript)
+# Boolean function that checks if frames are good for start_codon/stop_codon/CDS
+# type is the type of the sequence: start/stop/CDS
+# ranges are the sorted intervals
+# frames is a map that says for each interval its frame
+def check_frame_gene(type, ranges, frames, transcript):
+	length = 0
+	for i in range(len(ranges)):
+		start = ranges[i][0]
+		end = ranges[i][1]
+		frame = frames[(start, end)]
+		if(int(frame) != length):
+			print_error(' ', 'Frame of interval [' + str(start) + ', ' + str(end) + '] of type ' + type + ' is not correct. Transcript = ' + transcript + ' Expected: ' + str(length) + " found: " + frame)
+			return False
+		length = (3 - (((end - start + 1) - length ) % 3)) % 3
+	return True
+
+
 # Function check_transcript(transcript)
+# Boolean function that checks if a transcript is correct
 # transcript is a sequence of row of the same transcript 
 # for those row we have already checked that the strand is ok
 def check_transcript(transcript):
@@ -207,27 +219,33 @@ def check_transcript(transcript):
 	current_gene = current_attributes[0][1]
 	current_transcript = current_attributes[1][1]
 	strand = transcript[0].split('\t')[6]
-	print(current_gene)
-	print(current_transcript)
-
-
 	start_codons = []
 	stop_codons = []
 	ranges = []
+	utr5 = []
+	utr3 = []
+	start_frame = {}
+	stop_frame = {}
+	CDS_frame = {}
 	for row in transcript:
 		elements = row.split('\t')
+		feature = elements[2]
 		start = elements[3]
 		end = elements[4]
-		feature = elements[2]
+		frame = elements[7]
 		if feature == 'start_codon':
 			start_codons.append((int(start), int(end)))
+			start_frame[(int(start), int(end))] = frame
 		if feature == 'stop_codon':
 			stop_codons.append((int(start), int(end)))
+			stop_frame[(int(start), int(end))] = frame
 		if feature == 'CDS':
-			ranges.append((int(start), int(end))) 
-	print(start_codons)
-	print(stop_codons)
-	print(ranges)
+			ranges.append((int(start), int(end)))
+			CDS_frame[(int(start), int(end))] = frame
+		if feature == '3UTR':
+			utr3.append((int(start), int(end)))
+		if feature == '5UTR':
+			utr5.append((int(start), int(end)))
 
 	# If there is not a CDS do not controll anything else
 	if len(start_codons) + len(stop_codons) + len(ranges) == 0:
@@ -238,21 +256,30 @@ def check_transcript(transcript):
 		return False
 	# Checking if the lenght of start_codon is 3
 	lenght_start_codon = 0
-	for range in start_codons:
-		lenght_start_codon = lenght_start_codon + range[1] - range[0] + 1
-	if lenght_start_codon % 3 != 0:
-		print_error(' ', 'Lenght of start_codon must be a multiple of 3 in transcript ' + current_transcript)
+	for rangex in start_codons:
+		lenght_start_codon = lenght_start_codon + rangex[1] - rangex[0] + 1
+	if lenght_start_codon != 3:
+		print_error(' ', 'Lenght of start_codon must be 3 in transcript ' + current_transcript)
 		return False
 	# Checking if the length of stop_codon is 3
 	lenght_stop_codon = 0
-	for range in stop_codons:
-		lenght_stop_codon = lenght_stop_codon + range[1] - range[0] + 1
-	if lenght_stop_codon % 3 != 0:
-		print_error(' ', 'Lenght of stop_codon must be a multiple of 3 in transcript ' + current_transcript)
+	for rangex in stop_codons:
+		lenght_stop_codon = lenght_stop_codon + rangex[1] - rangex[0] + 1
+	if lenght_stop_codon != 3:
+		print_error(' ', 'Lenght of stop_codon must be 3 in transcript ' + current_transcript)
+		return False
+	# Checking if the length of CDS is a multiple of 3
+	lenght_CDS = 0
+	for rangex in ranges:
+		lenght_CDS = lenght_CDS + rangex[1] - rangex[0] + 1
+	if lenght_CDS % 3 != 0:
+		print_error(' ', 'Lenght of CDS must be a multiple of 3 in transcript ' + current_transcript)
 		return False
 	start_codons = sorted(start_codons)
 	stop_codons = sorted(stop_codons)
 	ranges = sorted(ranges)
+	utr5 = sorted(utr5)
+	utr3 = sorted(utr3)
 	# Checking that ranges do not overlap for start_codons 
 	if check_overlap(start_codons) == False:
 		print_error(' ', 'Start_codons overlap in transcript ' + current_transcript)
@@ -265,18 +292,87 @@ def check_transcript(transcript):
 	if check_overlap(ranges) == False:
 		print_error(' ', 'CDS ranges overlap in transcript ' + current_transcript)
 		return False
-	# Checking if start_codon is in a correct position 
+	# Checking that ranges of '5UTR' do not overlap
+	if check_overlap(utr5) == False:
+		print_error(' ', '5UTR ranges overlap in transcript ' + current_transcript)
+		return False
+	# Checking that ranges of '3UTR' do not overlap
+	if check_overlap(utr3) == False:
+		print_error(' ', '3UTR ranges overlap in transcript ' + current_transcript)
+		return False
+	if strand == '+':
+		# Checking if start_codon is in a correct position 
+		if len(start_codons) > 1:
+			x = len(start_codons) - 1
+			for i in range(x):
+				if ranges[i] != start_codons[i]:
+					print_error('', 'Start codons are not in the correct position in transcript ' + current_transcript)
+					return False
+		offset = len(start_codons) - 1
+		if start_codons[offset][0] != ranges[offset][0]:
+			print_error('', 'Start codons are not in the correct position in transcript ' + current_transcript)
+			return False
+		# Checking if stop_codon is in a correct position 
+		if stop_codons[0][0] <= ranges[len(ranges) - 1][1]:
+			print_error(' ', 'Stop_codons are not in the correct position in transcript ' + current_transcript)
+			return False
+		# Checking that 5UTR's segments come before the start codon
+		if len(utr5) > 0 and start_codons[0][0] <= utr5[len(utr5) - 1][1]:
+			print_error(' ', '5UTR segments are not before the start_codon in transcript ' + current_transcript)
+			return False
+		# Checking that 3UTR's segments go after the stop_codon 
+		if len(utr3) > 0 and stop_codons[len(stop_codons) - 1][1] >= utr3[0][0]:
+			print_error(' ', '3UTR segments are not after the stop_codon in transcript ' + current_transcript)
+			return False
+	else:
+		# Checking if start_codon is in a correct position 
+		if len(start_codons) > 1:
+			x = len(start_codons) - 1
+			for i in range(x):
+				if ranges[len(ranges) - 1 - i] != start_codons[len(start_codons) - 1 - i]:
+					print_error('', 'Start codons are not in the correct position in transcript ' + current_transcript)
+					return False
+		offset = len(start_codons) - 1
+		if start_codons[0][1] != ranges[len(ranges) - 1 - offset][1]:
+				print_error('', 'Start codons are not in the correct position in transcript ' + current_transcript)
+				return False
+		# Checking if stop_codon is in a correct position 
+		if stop_codons[len(stop_codons) - 1][1] >= ranges[0][0]:
+			print_error(' ', 'Stop_codons are not in the correct position in transcript ' + current_transcript)
+			return False
+		# Checking that 5UTR's segments come after the start codon (strand = '-')
+		if len(utr5) > 0 and utr5[0][0] <= start_codons[len(start_codons) - 1][1]:
+			print_error(' ', '5UTR segments are not after (strand = "-") the start_codon in transcript ' + current_transcript)
+			return False	
+		# Checking that 3UTR's segments go before the stop_codon (strand = '-')
+		if len(utr3) > 0 and utr3[len(utr3) - 1][1] >= stop_codons[0][0]:
+			print_error(' ', '3UTR segments are not before (strand = "-") the stop_codon in transcript ' + current_transcript)
+			return False
+	# Checking if the frames are correct
+	if strand == '-':
+		start_codons.reverse()
+		stop_codons.reverse()
+		ranges.reverse()
+	if check_frame_gene('start_codon', start_codons, start_frame, current_transcript) == False:
+		return False
+	if check_frame_gene('stop_codon', stop_codons, stop_frame, current_transcript) == False:
+		return False
+	if check_frame_gene('CDS', ranges, CDS_frame, current_transcript) == False:
+		return False
 
-	print("\n\n")
 
 
+# Main Function: 
 # Reading file's name and its lines
+print('Starting GTF-validator')
+print('Path to the file:')
 gtf_file_name = input()
 with open(gtf_file_name, 'r') as gtf_input_file:
 	gtf_file_rows = gtf_input_file.readlines()
 # Checking strands for the same gene
 if check_gene_strand(gtf_file_rows) == False:
 	print_error('-', 'Impossibile to continue the validation bacause of this error')
+	print('Validation Failed, open "Validation.txt" for more info')
 	sys.exit(0)
 # Group all the rows by gene and transcript
 gene_transcript_dict = {}
@@ -297,4 +393,7 @@ for i in range(len(gtf_file_rows)):
 for transcript in different_transcripts:
 	check_transcript(transcript)
 
-# py validator.py ./tests/first_test.gtf
+if successful_validation == True:
+	print('Correct Validation')
+else:
+	print('Validation Failed, open "Validation.txt" for more info')
