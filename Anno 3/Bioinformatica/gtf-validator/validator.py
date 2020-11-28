@@ -1,4 +1,4 @@
-# @Author: Fabio Marchesi 
+# @Author: Fabio Marchesi mtr 844841
 # GTF-validator 
 # GTF syntax: <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [attributes] [comments]
 
@@ -9,6 +9,8 @@ import re, sys
 validation = open("validation.txt", "w+")
 successful_validation = True
 def print_error(row, message):
+	if row == 'x':
+		return
 	global successful_validation
 	successful_validation = False
 	validation.write('Validation failed.\n')
@@ -30,7 +32,7 @@ def check_start_end(start, end, i):
 		int(start)
 	except:
 		print_error(i, 'Start value is not an integer')
-		correct = False;
+		correct = False
 	try:
 		int(end)
 	except:
@@ -51,7 +53,7 @@ def check_start_end(start, end, i):
 # ['CDS', 'start_codon', 'stop_codon', '5UTR', '3UTR', 'inter', 'inter_CNS', 'intron_CNS', 'exon']
 def check_feature(feature, i):
 	if feature not in ['CDS', 'start_codon', 'stop_codon', '5UTR', '3UTR', 'inter', 'inter_CNS', 'intron_CNS', 'exon']:
-		print_error(i, 'Feature value is not valid')
+		print_error(i, 'Feature value is not valid, feature must be equal to: CDS or start_codon or stop_codon or 5UTR or 3UTR or inter or inter_CNS or intron_CNS or exon')
 		return False
 	return True
 
@@ -100,7 +102,7 @@ def list_attributes(s):
 		else:
 			re_value = re.search('[^"]+', s) # Taking the value
 			if re_value == None:
-				return False
+				return []
 			value = s[ : re_value.span()[1]] 
 			s = s[len(value) + 1 : ]
 		attributes.append((attribute, value))
@@ -120,6 +122,12 @@ def list_attributes(s):
 # gene_id and transcript_id must be empty for gene = inter or gene = inter_CNS
 def check_attributes(feature, att, i):
 	elements = list_attributes(att)
+	if elements == []:
+		print_error('i', 'The list of attributes has the wrong syntax')
+		return False
+	if len(elements) < 2:
+		print_error(i, 'Missing attributes, needded at least 2')
+		return False	
 	if elements[0][0] != 'gene_id':
 		print_error(i, 'The first attribute (' + str(elements[0][0]) + ') must be "gene_id"')
 		return False
@@ -203,6 +211,13 @@ def check_frame_gene(type, ranges, frames, transcript):
 		start = ranges[i][0]
 		end = ranges[i][1]
 		frame = frames[(start, end)]
+		try:
+			int(start)
+			int(end)
+			int(frame)
+		except:
+			print_error(i, 'Start, End, Frame values must be integers')
+			return False
 		if(int(frame) != length):
 			print_error(' ', 'Frame of interval [' + str(start) + ', ' + str(end) + '] of type ' + type + ' is not correct. Transcript = ' + transcript + ' Expected: ' + str(length) + " found: " + frame)
 			return False
@@ -371,7 +386,7 @@ with open(gtf_file_name, 'r') as gtf_input_file:
 	gtf_file_rows = gtf_input_file.readlines()
 # Checking strands for the same gene
 if check_gene_strand(gtf_file_rows) == False:
-	print_error('-', 'Impossibile to continue the validation bacause of this error')
+	print_error(' ', 'Impossibile to continue the validation bacause of this error')
 	print('Validation Failed, open "Validation.txt" for more info')
 	sys.exit(0)
 # Group all the rows by gene and transcript
@@ -379,6 +394,8 @@ gene_transcript_dict = {}
 different_transcripts = []
 for i in range(len(gtf_file_rows)):
 	row = gtf_file_rows[i]
+	if check_row(row, 'x') == False:
+		continue
 	elements = row.split('\t')
 	current_attributes = list_attributes(elements[8])
 	current_gene = current_attributes[0][1]

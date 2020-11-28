@@ -35,7 +35,7 @@ For each transcript of the same gene:
 - ```CDS```'s length must be a mutiple of 3
 - Ranges of rows with feature equal to ```start_codon```, ```stop_codon```, ```CDS```, ```5UTR``` or ```3UTR``` mustn't overlap
 - ```start_codon``` needs to be placed correctly at the start of the CDS.
-- ```end_codon``` needs to be placed correctly ather the end or the CDS.
+- ```stop_codon``` needs to be placed correctly ather the end or the CDS.
 - ```5UTR``` codons need to be placed correctly before the ```start_codon```.
 - ```3UTR``` codons need to be placed correctly after the ```stop_codon```
 - ```frame``` of the rows with feature equal to ```start_codon```, ```stop_codon```, ```CDS``` must be calculeted correctly using:  ```frame = (3 - ((length-frame) mod 3)) mod 3.```
