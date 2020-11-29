@@ -8,6 +8,7 @@ Row's error:
 	test_5.gtf : attributes need to respect the correct syntax (name "value";).
 	test_6.gtf : attributes gene_id and transcript_id must be present in the file.
 	test_7.gtf : If feature is equal to inter or inter_CNS then the value of gene_id and transcript_id must be empty.
+	test_19.gtf : ```score``` must be a numeric value
 
 Gene's error:
 	test_8.gtf : All strand values must be equal.

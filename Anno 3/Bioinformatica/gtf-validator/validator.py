@@ -68,7 +68,20 @@ def check_strand(strand, i):
 	return True
 
 
-# Function check_frame(feature, frame, i):
+# Function check_score(score, i)
+# Boolean function that checks wheter the score is a numeric value
+def check_score(score, i):
+	if score == '.':
+		return True
+	try:
+		float(score)
+	except:
+		print_error(i, 'Score is not a numeric value')
+		return False
+	return True
+
+
+# Function check_frame(feature, frame, i)
 # Boolean function that checks whether the frame's value is correct
 # If the feature is equal to one of: ['CDS', 'start_codon', 'stop_codon']
 #	The frame must be equal to one of: ['0', '1', '2']
@@ -160,6 +173,9 @@ def check_row(row, i):
 	# Checking the strand 
 	correct_strand = check_strand(elements[6], i)
 	correct_row = correct_row and correct_strand
+	# Checking score
+	correct_score = check_score(elements[5], i)
+	correct_row = correct_row and correct_score
 	# Checking the frame
 	correct_frame = check_frame(elements[2], elements[7], i)
 	correct_row = correct_row and correct_frame
