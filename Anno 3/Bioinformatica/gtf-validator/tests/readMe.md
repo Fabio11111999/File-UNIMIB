@@ -16,6 +16,7 @@ In this folder there are several tests for the script, one correct test with str
 - test_6.gtf : attributes gene_id and transcript_id must be present in the file.
 
 - test_7.gtf : If feature is equal to inter or inter_CNS then the value of gene_id and transcript_id must be empty.
+- test_19.gtf : ```score``` must be a numeric value.
 
 **Gene's error**:
 

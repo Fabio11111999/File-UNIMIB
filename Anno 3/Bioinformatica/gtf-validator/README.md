@@ -41,4 +41,4 @@ For each transcript of the same gene:
 - ```3UTR``` codons need to be placed correctly after the ```stop_codon```
 - ```frame``` of the rows with feature equal to ```start_codon```, ```stop_codon```, ```CDS``` must be calculeted correctly using:  ```frame = (3 - ((length-frame) mod 3)) mod 3.```
 - Note that the ```strand``` must be considered  when checking the properties for the transcripts of the same gene .
-- **Note that rows with errors are not included in the validation of genes and transcropts** 
+- **Note that rows with errors are not included in the validation of genes and transcripts** 
