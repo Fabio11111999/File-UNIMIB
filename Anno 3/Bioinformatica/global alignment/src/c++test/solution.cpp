@@ -67,7 +67,7 @@ result calc(string &s, string &t, int band) {
 		return {0, "", "", false};
 	band = min(band, m);
 	int width = 2 * band  + 1;
-	dbg(n, m, band, width);
+	//dbg(n, m, band, width);
 	vector<vector<int>> dp(n + 1, vector<int>(width, -1e9));
 	vector<vector<char>> pre(n + 1, vector<char>(width, '-'));
 	dp[0][band] = 0;
@@ -77,7 +77,7 @@ result calc(string &s, string &t, int band) {
 			if(i < 0 || j < 0 || i > n || j > m)
 				continue;
 			int mappedi = i, mappedj = j - i + band;
-			dbg(i, j, mappedi, mappedj);
+			//dbg(i, j, mappedi, mappedj);
 			if(in_bounds(mappedi, mappedj - 1, n, width)) {
 				int left = dp[mappedi][mappedj - 1] + price[pos['*']][pos[(int)t[j - 1]]];
 				if(left > dp[mappedi][mappedj]) {
@@ -101,30 +101,22 @@ result calc(string &s, string &t, int band) {
 			}
 		}
 	}
-	for(int i = 0; i <= n; i++)
-		for(int j = 0; j < width; j++)
-			cout << dp[i][j] << " \n"[j == width - 1];
-	for(int i = 0; i <= n; i++)
-		for(int j = 0; j < width; j++)
-			cout << pre[i][j] << " \n"[j == width - 1];
-	
 	int x = n, y = m - n + band;
 	string s1 = "", s2 = "";
 	while(pre[x][y] != '*') {
-		cout << x << " " << y << endl;
 		int realy = y + x - band;
 		if(pre[x][y] == 'L') {
 			s1 += '_';
 			s2 += t[realy - 1];
 			y--;
 		}
-		if(pre[x][y] == 'U') {
+		else if(pre[x][y] == 'U') {
 			s1 += s[x - 1];
 			s2 += '_';
 			x--;
 			y++;
 		}
-		if(pre[x][y] == 'D') {
+		else if(pre[x][y] == 'D') {
 			s1 += s[x - 1];
 			s2 += t[realy - 1];
 			x--;
@@ -132,8 +124,13 @@ result calc(string &s, string &t, int band) {
 	}
 	reverse(s1.begin(), s1.end());
 	reverse(s2.begin(), s2.end());
-	cout << s1 << endl << s2 << endl;
 	return {dp[n][m - n + band], s1, s2, true};
+}
+int best_aligment(string &s) {
+	int score = 0;
+	for(int i = 0 ; i < (int)s.length(); i++)
+		score += price[pos[(int)s[i]]][pos[(int)s[i]]];
+	return score;
 }
 int main() {
 	string s, t;
@@ -141,8 +138,19 @@ int main() {
 	if(s.length() > t.length())
 		swap(s, t);
 	compute_pos();
-	int band = max((int)(t.length() - s.length()), 1);
-	cout << calc(s, t, band);
+	int best = best_aligment(s);
+	int start = t.length() - s.length();
+	int offset = 1;
+	result ans;
+	while(start + offset <= (int)t.length()) {
+		int band = start + offset;
+		ans = calc(s, t, band);
+		int upper = best + (-4 * (band + 1));
+		if(upper <= ans.answer)
+			break;
+		offset *= 2;
+	}
+	cout << ans;
 }
 /*
  ABCAB ABABACD 
