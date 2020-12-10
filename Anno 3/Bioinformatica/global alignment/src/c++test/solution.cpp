@@ -1,7 +1,14 @@
 #include <bits/stdc++.h>
 
 using namespace std;
-
+#define dbg(...) cerr << "(" << #__VA_ARGS__ << "):", dbg_out(__VA_ARGS__)
+void dbg_out(){
+	cerr<<endl;
+}
+template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T){
+	cerr<<' '<< H; 
+	dbg_out(T...);
+}
 const int MAXN = 24;
 int price[MAXN][MAXN] = {
 	{4, -1, -2, -2, 0, -1, -1, 0, -2, -1, -1, -1, -1, -2, -1, 1, 0, -3, -2, 0, -2, -1, 0, -4},
@@ -35,10 +42,111 @@ void compute_pos() {
 	for(int i = 0; i < MAXN; i++)
 		pos[(int)order[i]] = i;
 }
+bool in_bounds(int i, int j, int rows, int width) {
+	if(i < 0 || j < 0 || i > rows || j >= width)
+		return false;
+	if(i + j < width / 2) // top left-corner
+		return false;
+	return true;
+}
+struct result {
+	int answer;
+	string s1;
+	string s2;
+	bool correct;
+};
+ostream &operator<<(ostream &os, const result &x) {
+	os << "Answer: " << x.answer << endl;
+	os << "s: " << x.s1 << endl;
+	os << "t: " << x.s2 << endl;
+	return os;
+}
+result calc(string &s, string &t, int band) {
+	int n = s.length(), m = t.length();
+	if(band < (int)(t.length() - s.length()))
+		return {0, "", "", false};
+	band = min(band, m);
+	int width = 2 * band  + 1;
+	dbg(n, m, band, width);
+	vector<vector<int>> dp(n + 1, vector<int>(width, -1e9));
+	vector<vector<char>> pre(n + 1, vector<char>(width, '-'));
+	dp[0][band] = 0;
+	pre[0][band] = '*';
+	for(int i = 0; i <= n; i++) {
+		for(int j = i - band; j <= i + band; j++) {
+			if(i < 0 || j < 0 || i > n || j > m)
+				continue;
+			int mappedi = i, mappedj = j - i + band;
+			dbg(i, j, mappedi, mappedj);
+			if(in_bounds(mappedi, mappedj - 1, n, width)) {
+				int left = dp[mappedi][mappedj - 1] + price[pos['*']][pos[(int)t[j - 1]]];
+				if(left > dp[mappedi][mappedj]) {
+					dp[mappedi][mappedj] = left;
+					pre[mappedi][mappedj] = 'L';
+				}
+			}
+			if(in_bounds(mappedi - 1, mappedj + 1, n, width)) {
+				int up = dp[mappedi - 1][mappedj + 1] + price[pos[(int)s[i - 1]]][pos['*']];
+				if(up > dp[mappedi][mappedj]) {
+					dp[mappedi][mappedj] = up;
+					pre[mappedi][mappedj] = 'U';
+				}
+			}
+			if(in_bounds(mappedi - 1, mappedj, n, width)) {
+				int up_left = dp[mappedi - 1][mappedj] + price[pos[(int)s[i - 1]]][pos[(int)t[j - 1]]];
+				if(up_left > dp[mappedi][mappedj]) {
+					dp[mappedi][mappedj] = up_left;
+					pre[mappedi][mappedj] = 'D';
+				}
+			}
+		}
+	}
+	for(int i = 0; i <= n; i++)
+		for(int j = 0; j < width; j++)
+			cout << dp[i][j] << " \n"[j == width - 1];
+	for(int i = 0; i <= n; i++)
+		for(int j = 0; j < width; j++)
+			cout << pre[i][j] << " \n"[j == width - 1];
+	
+	int x = n, y = m - n + band;
+	string s1 = "", s2 = "";
+	while(pre[x][y] != '*') {
+		cout << x << " " << y << endl;
+		int realy = y + x - band;
+		if(pre[x][y] == 'L') {
+			s1 += '_';
+			s2 += t[realy - 1];
+			y--;
+		}
+		if(pre[x][y] == 'U') {
+			s1 += s[x - 1];
+			s2 += '_';
+			x--;
+			y++;
+		}
+		if(pre[x][y] == 'D') {
+			s1 += s[x - 1];
+			s2 += t[realy - 1];
+			x--;
+		}
+	}
+	reverse(s1.begin(), s1.end());
+	reverse(s2.begin(), s2.end());
+	cout << s1 << endl << s2 << endl;
+	return {dp[n][m - n + band], s1, s2, true};
+}
 int main() {
 	string s, t;
 	cin >> s >> t;
 	if(s.length() > t.length())
 		swap(s, t);
 	compute_pos();
+	int band = max((int)(t.length() - s.length()), 1);
+	cout << calc(s, t, band);
 }
+/*
+ ABCAB ABABACD 
+ CAGTGAGCTAGA GCTAGCATCAGCATAGATGA
+ 
+ 
+*/ 
