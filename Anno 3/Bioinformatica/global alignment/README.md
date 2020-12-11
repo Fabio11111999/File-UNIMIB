@@ -9,3 +9,5 @@ Four arguments: ```n```, ```s```, ```m``` and ```t``` separated by a space:
 
 ### Output Format
 The score of the best global alignment and the 2 strings that produce it. **INDEL** charcater is represented using '_'. 
+
+Check ```documentation.pdf``` for infos about the implementation.
