@@ -1,34 +1,5 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h> 
+#include "band.h"
 
-static int price[24][24] = {
-	{4, -1, -2, -2, 0, -1, -1, 0, -2, -1, -1, -1, -1, -2, -1, 1, 0, -3, -2, 0, -2, -1, 0, -4},
-	{-1, 5, 0, -2, -3, 1, 0, -2, 0, -3, -2, 2, -1, -3, -2, -1, -1, -3, -2, -3, -1, 0, -1, -4},
-	{-2, 0, 6, 1, -3, 0, 0, 0, 1, -3, -3, 0, -2, -3, -2, 1, 0, -4, -2, -3, 3, 0, -1, -4},
-	{-2, -2, 1, 6, -3, 0, 2, -1, -1, -3, -4, -1, -3, -3, -1, 0, -1, -4, -3, -3, 4, 1, -1, -4},
-	{0, -3, -3, -3, 9, -3, -4, -3, -3, -1, -1, -3, -1, -2, -3, -1, -1, -2, -2, -1, -3, -3, -2, -4},
-	{-1, 1, 0, 0, -3, 5, 2, -2, 0, -3, -2, 1, 0, -3, -1, 0, -1, -2, -1, -2, 0, 3, -1, -4},
-	{-1, 0, 0, 2, -4, 2, 5, -2, 0, -3, -3, 1, -2, -3, -1, 0, -1, -3, -2, -2, 1, 4, -1, -4},
-	{0, -2, 0, -1, -3, -2, -2, 6, -2, -4, -4, -2, -3, -3, -2, 0, -2, -2, -3, -3, -1, -2, -1, -4},
-	{-2, 0, 1, -1, -3, 0, 0, -2, 8, -3, -3, -1, -2, -1, -2, -1, -2, -2, 2, -3, 0, 0, -1, -4},
-	{-1, -3, -3, -3, -1, -3, -3, -4, -3, 4, 2, -3, 1, 0, -3, -2, -1, -3, -1, 3, -3, -3, -1, -4},
-	{-1, -2, -3, -4, -1, -2, -3, -4, -3, 2, 4, -2, 2, 0, -3, -2, -1, -2, -1, 1, -4, -3, -1, -4},
-	{-1, 2, 0, -1, -3, 1, 1, -2, -1, -3, -2, 5, -1, -3, -1, 0, -1, -3, -2, -2, 0, 1, -1, -4},
-	{-1, -1, -2, -3, -1, 0, -2, -3, -2, 1, 2, -1, 5, 0, -2, -1, -1, -1, -1, 1, -3, -1, -1, -4},
-	{-2, -3, -3, -3, -2, -3, -3, -3, -1, 0, 0, -3, 0, 6, -4, -2, -2, 1, 3, -1, -3, -3, -1, -4},
-	{-1, -2, -2, -1, -3, -1, -1, -2, -2, -3, -3, -1, -2, -4, 7, -1, -1, -4, -3, -2, -2, -1, -2, -4},
-	{1, -1, 1, 0, -1, 0, 0, 0, -1, -2, -2, 0, -1, -2, -1, 4, 1, -3, -2, -2, 0, 0, 0, -4},
-	{0, -1, 0, -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -2, -1, 1, 5, -2, -2, 0, -1, -1, 0, -4},
-	{-3, -3, -4, -4, -2, -2, -3, -2, -2, -3, -2, -3, -1, 1, -4, -3, -2, 11, 2, -3, -4, -3, -2, -4},
-	{-2, -2, -2, -3, -2, -1, -2, -3, 2, -1, -1, -2, -1, 3, -3, -2, -2, 2, 7, -1, -3, -2, -1, -4},
-	{0, -3, -3, -3, -1, -2, -2, -3, -3, 3, 1, -2, 1, -1, -2, -2, 0, -3, -1, 4, -3, -2, -1, -4},
-	{-2, -1, 3, 4, -3, 0, 1, -1, 0, -3, -4, 0, -3, -3, -2, 0, -1, -4, -3, -3, 4, 1, -1, -4},
-	{-1, 0, 0, 1, -3, 3, 4, -2, 0, -3, -3, 1, -1, -3, -1, 0, -1, -3, -2, -2, 1, 4, -1, -4},
-	{0, -1, -1, -1, -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, 0, 0, -2, -1, -1, -1, -1, -1, -4},
-	{-4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, -4, 1}
-};
 int pos[256];
 void compute_pos() {
 	char order[] = "ARNDCQEGHILKMFPSTWYVBZX*";
@@ -40,11 +11,7 @@ int in_bounds(int i, int j, int rows, int width) {
 		return 0;
 	return 1;
 }
-struct result {
-	int64_t answer;
-	char *s1, *s2;
-	int correct;
-};
+// read: length of s, s, length of t, t. swap(s, t) if length of s is greater than length of t
 int read_input(char **s, char **t) {
 	size_t n, m;
 	scanf("%ld", &n);
@@ -62,6 +29,7 @@ int read_input(char **s, char **t) {
 	}
 	return 0;
 }
+// best alignment for a string s, aligned with a string equal to s
 int64_t best_aligment(char *s) {
 	size_t n = strlen(s);
 	int64_t score = 0;
@@ -69,6 +37,7 @@ int64_t best_aligment(char *s) {
 		score += price[pos[(int)s[i]]][pos[(int)s[i]]];
 	return score;
 }
+// reverse a string
 void reverse_string(char *s) {
 	char *start = s, *end = s + strlen(s) - 1;
 	char tmp;
@@ -80,6 +49,7 @@ void reverse_string(char *s) {
 		start++;
 	}
 }
+// compute the best alignment of s and t in a limited band
 struct result band_align(char *s, char *t, int band) {
 	struct result answer = {-1e9, NULL, NULL, 0};
 	int n = strlen(s), m = strlen(t);
@@ -127,28 +97,25 @@ struct result band_align(char *s, char *t, int band) {
 			}
 		}
 	}
+	// finding the size of the alignment 
 	int x = n, y = m - n + band;
 	int newn = 0;
 	while(pre[x][y] != '*') {
-		if(pre[x][y] == 'L') {
-			newn++;
+		newn++;
+		if(pre[x][y] == 'L')
 			y--;
-		}
 		else if(pre[x][y] == 'U') {
-			newn++;
 			x--;
 			y++;
 		}
-		else if(pre[x][y] == 'D') {
-			newn++;
+		else if(pre[x][y] == 'D')
 			x--;
-		}
 	}
 	char *news1 = malloc(newn + 1);
 	char *news2 = malloc(newn + 1);
 	int _i = 0, _j = 0;
 	x = n, y = m - n + band;
-	newn = 0;
+	// reconstruct the strings
 	while(pre[x][y] != '*') {
 		int realy = y + x - band;
 		if(pre[x][y] == 'L') {
@@ -158,7 +125,7 @@ struct result band_align(char *s, char *t, int band) {
 		}
 		else if(pre[x][y] == 'U') {
 			news1[_i++] = s[x - 1];
-			news2[_i++] = '_';
+			news2[_j++] = '_';
 			x--;
 			y++;
 		}
@@ -184,6 +151,7 @@ int main(int argc, char *argv[]) {
 	int64_t best = best_aligment(s);
 	int start = strlen(t) - strlen(s), offset = 1;
 	struct result ans;
+	// enlarging the band
 	while(start + offset <= (int) strlen(t)) {
 		int band = start + offset;
 		ans = band_align(s, t, band);
@@ -195,7 +163,3 @@ int main(int argc, char *argv[]) {
 	printf("Score: %ld \ns: %s \nt: %s\n", ans.answer, ans.s1, ans.s2);
 	return 0;
 }
-/*
- 5 ABCAB 7 ABABACD 
- 12 CAGTGAGCTAGA 20 GCTAGCATCAGCATAGATGA
-*/
