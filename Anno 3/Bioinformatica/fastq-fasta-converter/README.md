@@ -17,6 +17,8 @@ For being able to run the script Python need to be present on the computer. It's
    - The read isn't longer than ```L2```.
    - The minimun quality of a base of the read must be greater or equal to ```Q1```.
    - The longest subregion with quality greater or equal than Q2 is at lest p% of the total length.
+   
+   
 **Output:**
 - ```converted.fa``` a FASTA file which contains the conversion of the reads that satisfy the conditions written before, with some information about each record:
    - Length.
