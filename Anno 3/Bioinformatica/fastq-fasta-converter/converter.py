@@ -65,7 +65,7 @@ try:
 		sys.exit(0)
 	P = float(input())
 	if 0 > P or 100 < P:
-		print('Execution failed, P must be >= and <= 100')
+		print('Execution failed, P must be >= 0 and <= 100')
 except Exception as e:
 	print(e)
 	print('Execution failed, impossibile to read the input')
@@ -78,7 +78,7 @@ fastq_record_list = list(fastq_records)
 for read in fastq_record_list:
 	correct = check_read(read, L1, L2, Q1, Q2, P)
 	if correct:
-		read.description = 'Lenght: ' + str(len(read.seq)) + ', '
+		read.description = 'Length: ' + str(len(read.seq)) + ', '
 		read.description += 'Minimum quality: ' + str(min(read.letter_annotations['phred_quality'])) + ", "
 		subregion = longest_subregion(read, Q2)
 		best_start, best_end = subregion[0], subregion[1]
